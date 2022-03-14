@@ -1,0 +1,36 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
+    container_name: elasticsearch
+    environment:
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - discovery.type=single-node
+    ports:
+      - "9201:9200"
+    volumes:
+      - ./tmp/esdata:/tmp/elasticsearch/data
+
+  kibana:
+      image: docker.elastic.co/kibana/kibana:7.10.2
+      container_name: kibana
+      environment:
+        - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      ports:
+        - "5601:5601"
+      depends_on:
+        - elasticsearch
+
+  logstash:
+      image: docker.elastic.co/logstash/logstash:7.16.2
+      container_name: logstash
+      depends_on:
+        - elasticsearch
+      environment:
+        XPACK_MONITORING_ENABLED: "false"
+        ES_HOST: "elasticsearch:9200"
+      ports:
+        - "5044:5044/udp"
+      volumes:
+        - ./services/logstash/logstash.conf:/config/logstash.conf:ro
+        - ./tmp/logs/nginx/:/var/log/nginx/:ro
+      command: logstash -f /config/logstash.conf

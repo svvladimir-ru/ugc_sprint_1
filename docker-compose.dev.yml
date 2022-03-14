@@ -1,0 +1,170 @@
+x-services:
+  &clickhouse-service
+  image: yandex/clickhouse-server:20.4
+  depends_on:
+    - zookeeper_ugc
+
+services:
+  movies_admin:
+    build:
+      dockerfile: Dockerfile.dev
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./services/movies_admin/:/usr/src/app/
+    ports:
+      - "1337:8000"
+    env_file:
+      - ./.env.dev
+
+  movies_film_etl:
+    build:
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/movies_etl/:/usr/src/app/
+    env_file:
+      - ./.env.dev
+
+  movies_person_etl:
+    build:
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/movies_etl/:/usr/src/app/
+    env_file:
+      - ./.env.dev
+
+  movies_genre_etl:
+    build:
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/movies_etl/:/usr/src/app/
+    env_file:
+      - ./.env.dev
+
+  movies_async_api:
+    build:
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env.dev
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: api
+
+  movies_auth:
+    build:
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./.env.dev
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: auth
+
+  elasticsearch_etl:
+    ports:
+      - "9200:9200"
+    env_file:
+      - ./.env.dev
+
+  postgres:
+    env_file:
+      - ./.env.dev
+
+  redis:
+    ports:
+      - "6379:6379"
+    env_file:
+      - ./.env.dev
+
+  postgres_auth:
+    ports:
+      - "5433:5432"
+    env_file:
+      - ./.env.dev
+
+  redis_auth:
+    ports:
+      - "6380:6379"
+    env_file:
+      - ./.env.dev
+
+  nginx:
+    build: ./services/nginx
+    container_name: nginx
+    volumes:
+      - ./tmp/logs/nginx/:/var/log/nginx/
+    ports:
+      - "80:80"
+    depends_on:
+      - movies_admin
+      - movies_async_api
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: nginx
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: movies_jaeger
+    ports:
+      - "6831:6831"
+      - "16686:16686"
+
+  movies_ugc:
+    build:
+      dockerfile: ./services/ugc/Dockerfile.dev
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./.env.dev
+
+  zookeeper_ugc:
+    ports:
+      - "2181:2181"
+
+  kafka_ugc:
+    ports:
+      - "9092:9092"
+    expose:
+      - "9093"
+    env_file:
+      - ./.env.dev
+
+  clickhouse_node1:
+    <<: *clickhouse-service
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ./clickhouse/node1:/etc/clickhouse-server
+
+  clickhouse_node2:
+    <<: *clickhouse-service
+    volumes:
+      - ./clickhouse/node2:/etc/clickhouse-server
+
+  clickhouse_node3:
+    <<: *clickhouse-service
+    volumes:
+      - ./clickhouse/node3:/etc/clickhouse-server
+
+  clickhouse_node4:
+    <<: *clickhouse-service
+    volumes:
+      - ./clickhouse/node4:/etc/clickhouse-server
+
+  ugc_etl:
+    build:
+      dockerfile: Dockerfile
+      context: ./services/kafka_to_clickhouse/
+    env_file:
+      - ./.env.dev
+    volumes:
+      - ./services/kafka_to_clickhouse:/app

@@ -1,0 +1,43 @@
+FROM python:3.9.6 as builder
+
+ENV APP_PATH=services/ugc
+ENV PACKAGES_PATH=packages
+ENV BUILDER_ROOT=/usr/src/app
+ENV BUILDER_APP_HOME=$BUILDER_ROOT/$APP_PATH
+WORKDIR $BUILDER_APP_HOME
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN pip install --upgrade pip
+
+COPY ./$PACKAGES_PATH/auth_utils $BUILDER_ROOT/$PACKAGES_PATH/auth_utils/
+COPY ./$APP_PATH/requirements/ ./requirements/
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir $BUILDER_APP_HOME/wheels -r ./requirements/prod.txt
+
+FROM python:3.9.6
+
+RUN mkdir -p /home/app
+
+ENV APP_PATH=services/ugc
+ENV BUILDER_ROOT=/usr/src/app
+ENV BUILDER_APP_HOME=$BUILDER_ROOT/$APP_PATH
+ENV DST_APP_HOME=/home/app/web
+RUN mkdir $DST_APP_HOME
+WORKDIR $DST_APP_HOME
+
+RUN apt-get update && apt-get install -y netcat
+COPY --from=builder $BUILDER_APP_HOME/wheels /wheels
+COPY --from=builder $BUILDER_APP_HOME/requirements/ .
+RUN pip install --no-cache /wheels/*
+
+COPY ./$APP_PATH/entrypoint.sh .
+RUN sed -i 's/\r$//g' $DST_APP_HOME/entrypoint.sh
+RUN chmod +x $DST_APP_HOME/entrypoint.sh
+
+COPY ./$APP_PATH/src $DST_APP_HOME
+
+EXPOSE 8001
+
+ENTRYPOINT ["/home/app/web/entrypoint.sh"]
+CMD ["gunicorn", "main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8001"]

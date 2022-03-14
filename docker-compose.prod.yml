@@ -1,0 +1,98 @@
+volumes:
+  movies_admin_media_data:
+  movies_admin_static_data:
+
+services:
+  movies_admin:
+    build:
+      dockerfile: Dockerfile.prod
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - movies_admin_media_data:/home/app/web/mediafiles
+      - movies_admin_static_data:/home/app/web/staticfiles
+    expose:
+      - 8000
+    env_file:
+      - ./.env.prod
+  movies_film_etl:
+    build:
+      dockerfile: Dockerfile.prod
+    env_file:
+      - ./.env.prod
+  movies_person_etl:
+    build:
+      dockerfile: Dockerfile.prod
+    env_file:
+      - ./.env.prod
+  movies_genre_etl:
+    build:
+      dockerfile: Dockerfile.prod
+    env_file:
+      - ./.env.prod
+  movies_async_api:
+    build:
+      dockerfile: Dockerfile.prod
+    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
+    expose:
+      - 8000
+    env_file:
+      - ./.env.prod
+  movies_auth:
+    build:
+      dockerfile: Dockerfile.prod
+    command: gunicorn --worker-class gevent -w 4 pywsgi:app --bind 0.0.0.0:5000
+    expose:
+      - 5000
+    env_file:
+      - ./.env.prod
+  elasticsearch_etl:
+    expose:
+      - 9200
+    env_file:
+      - ./.env.prod
+  postgres:
+    env_file:
+      - ./.env.prod
+  redis:
+    expose:
+      - 6379
+    env_file:
+      - ./.env.prod
+  postgres_auth:
+    expose:
+      - 5432
+    env_file:
+      - ./.env.prod
+  redis_auth:
+    expose:
+      - 6379
+    env_file:
+      - ./.env.prod
+  nginx:
+    build: ./services/nginx
+    container_name: nginx
+    volumes:
+      - movies_admin_media_data:/home/app/web/mediafiles
+      - movies_admin_static_data:/home/app/web/staticfiles
+      - ./tmp/logs/nginx/:/var/log/nginx/
+    ports:
+      - "1337:80"
+    depends_on:
+      - movies_admin
+      - movies_async_api
+  movies_ugc:
+    build:
+      dockerfile: ./services/ugc/Dockerfile.prod
+    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8001
+    expose:
+      - 8001
+    env_file:
+      - ./.env.prod
+  zookeeper_ugc:
+    expose:
+      - 2181
+  kafka_ugc:
+    expose:
+      - 9093
+    env_file:
+      - ./.env.prod

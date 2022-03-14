@@ -1,0 +1,15 @@
+aiokafka==0.7.2
+click==7.1.2
+fastapi==0.61.1
+h11==0.12.0
+kafka-python==2.0.2
+orjson==3.6.6
+pydantic==1.8.2
+starlette==0.13.6
+typing-extensions==4.0.1
+uvicorn==0.12.2
+uvloop==0.16.0
+
+# TODO: Заменить относительный путь на github source, когда будем готовы сделать репозиторий публичным либо вынести
+# пакет в отдельный публичный репозиторий
+../../packages/auth_utils/

@@ -1,0 +1,66 @@
+@startuml
+!include https://raw.githubusercontent.com/kirchsth/C4-PlantUML/extended/C4_Container.puml
+
+LAYOUT_LANDSCAPE()
+
+title Container Diagram For Cinema Backend System
+
+AddElementTag("container (frontend)", $bgColor="#888888", $borderColor="#7c7c7c", $fontColor="#ffffff")
+
+Container(ClientApp, "Client Application (SPA or Mobile)", "Container: React / Swift / Kotlin", "Provides all of Cinema functionality via web browser or mobile device.", $tags="container (frontend)")
+
+System_Boundary(Cinema_Backend_System, "Cinema Backend System") {
+  Boundary(MoviesAdmin, "Movies Admin Service") {
+    Container(AdminPanel, "Admin Panel", "Container: Python, Django", "Provides interface to movies database")
+    ContainerDb(MoviesDB, "Movies Relational DB", "Container: PostgreSQL", "Stores info about movies, actors, genres etc.")
+  }
+
+  Boundary(ETL, "ETL Service") {
+    Container(GenresETL, "Genres ETL", "Container: Python")
+    Container(PersonsETL, "Persons ETL", "Container: Python")
+    Container(MoviesETL, "Movies ETL", "Container: Python")
+  }
+
+  ContainerDb(MoviesElasticDB, "Movies Full-Text Search DB", "Container: Elasticsearch", "Stores info about movies, actors and genres for full-text search")
+
+  Boundary(AsyncAPIService, "Async API Service") {
+    Container(AsyncAPI, "Async API", "Container: Python, FastAPI", "Provides info about movies, genres, persons etc.")
+    ContainerDb(AsyncAPICache, "Redis Cache", "Container: Redis", "Stores db responses for some time to decresase db load")
+  }
+
+  Boundary(AuthService, "Auth Service") {
+    Container(Auth, "Auth", "Container: Python, Flask", "Provides users registration, authentication, authorization and validation, permissions and roles management.")
+    ContainerDb(AuthCache, "Redis Cache", "Container: Redis", "Stores db responses on users permissions and revoked tokens.")
+    ContainerDb(AuthDb, "Auth Db", "Container: PostgreSQL", "Stores info about users, roles, permissions etc.")
+  }
+}
+
+Person(Admin, "Admin", "Including content creators")
+
+
+Rel(AdminPanel, MoviesDB, "Reads from and writes to")
+Rel_U(Admin, AdminPanel, "Updates content via admin panels")
+
+Rel_L(MoviesETL, MoviesDB, "Extracts from")
+Rel_L(GenresETL, MoviesDB, "Extracts from")
+Rel_L(PersonsETL, MoviesDB, "Extracts from")
+
+Rel_R(MoviesETL, MoviesElasticDB, "Loads to")
+Rel_R(GenresETL, MoviesElasticDB, "Loads to")
+Rel_R(PersonsETL, MoviesElasticDB, "Lolads to")
+
+Rel_D(AsyncAPI, MoviesElasticDB, "Reads from")
+Rel_R(AsyncAPI, AsyncAPICache, "Reads from and writes to")
+
+Rel_D(Auth, AuthCache, "Reads from and writes to")
+Rel_L(Auth, AuthDb, "Reads from and writes to")
+
+Rel_L(AsyncAPI, Auth, "Authenticates And Authorize using")
+
+Rel_U(ClientApp, AsyncAPI, "Makes API calls to", "JSON/HTTPS")
+Rel(ClientApp, Auth, "Makes API calls to", "JSON/HTTPS")
+
+Rel_D(Admin, Auth, "Manages users, permissions, tokens using")
+
+SHOW_LEGEND()
+@enduml

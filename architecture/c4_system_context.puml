@@ -1,0 +1,25 @@
+@startuml
+!include https://raw.githubusercontent.com/kirchsth/C4-PlantUML/extended/C4_Container.puml
+
+title System Context Diagram For Cinema System
+
+AddElementTag("container (frontend)", $bgColor="#888888", $borderColor="#7c7c7c", $fontColor="#ffffff")
+
+Person(User, "User", "Cinema subscriber or anonymous")
+
+System_Boundary(Cinema_System, "Cinema System") {
+  Container(SPA, "Single-Page Application", "Container: JavaScript, React", "Provides all of Cinema functionality via web browser.", $tags="container (frontend)")
+  Container(Mobile, "Mobile App", "Container: Swift, Kotlin", "Provides all of Cinema functionality via mobile devices.", $tags="container (frontend)")
+  System(Backend, "Cinema Backend", "A set of microservices providing cinema functionality via REST APIs")
+}
+
+Person(Admin, "Admin", "Including content creators")
+
+Rel(User, SPA, "Searches and watches movies, leaves comments etc. using")
+Rel(User, Mobile, "Searches and watches movies, leaves comments etc. using")
+Rel(SPA, Backend, "Makes API calls to", "JSON/HTTPS")
+Rel(Mobile, Backend, "Makes API calls to", "JSON/HTTPS")
+Rel_U(Admin, Backend, "Does administration tasks, updates content via admin panels")
+
+SHOW_LEGEND()
+@enduml

@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - ./services/mongo/init_db.js:/docker-entrypoint-initdb.d/init_db.js
+    env_file:
+      - ./services/mongo/.env
+
+  mongoexpress:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    depends_on:
+      - mongo
+    links:
+      - mongo
+    env_file:
+      - ./services/mongo-express/.env
+
+  data_generator:
+    build: ./data_generator
+    container_name: data_generator
+    depends_on:
+      - mongo
+    env_file:
+      - ./data_generator/.env

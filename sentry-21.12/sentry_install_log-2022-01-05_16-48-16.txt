@@ -1,0 +1,248 @@
+▶ Parsing command line ...
+
+▶ Checking for latest commit ... 
+skipped
+
+▶ Setting up error handling ...
+
+▶ Checking minimum requirements ...
+
+▶ Creating volumes for persistent storage ...
+Created sentry-clickhouse.
+Created sentry-data.
+Created sentry-kafka.
+Created sentry-postgres.
+Created sentry-redis.
+Created sentry-symbolicator.
+Created sentry-zookeeper.
+
+▶ Ensuring files from examples ...
+Creating ../sentry/sentry.conf.py...
+Creating ../sentry/config.yml...
+Creating ../symbolicator/config.yml...
+Creating ../sentry/requirements.txt...
+
+▶ Generating secret key ...
+Secret key written to ../sentry/config.yml
+
+▶ Replacing TSDB ...
+
+▶ Fetching and updating Docker images ...
+Some service image(s) must be built from source by running:
+    docker-compose build symbolicator-cleanup snuba-cleanup snuba-transactions-cleanup sentry-cleanup
+21.12.0: Pulling from getsentry/sentry
+Digest: sha256:3b9aa4f16ba42ed62e3e1cb59c9070abd7bc59cbb322ac5a3c57f511f659d827
+Status: Image is up to date for getsentry/sentry:21.12.0
+docker.io/getsentry/sentry:21.12.0
+
+▶ Building and tagging Docker images ...
+
+smtp uses an image, skipping
+memcached uses an image, skipping
+redis uses an image, skipping
+postgres uses an image, skipping
+zookeeper uses an image, skipping
+kafka uses an image, skipping
+clickhouse uses an image, skipping
+geoipupdate uses an image, skipping
+snuba-api uses an image, skipping
+snuba-consumer uses an image, skipping
+snuba-outcomes-consumer uses an image, skipping
+snuba-sessions-consumer uses an image, skipping
+snuba-transactions-consumer uses an image, skipping
+snuba-replacer uses an image, skipping
+snuba-subscription-consumer-events uses an image, skipping
+snuba-subscription-consumer-transactions uses an image, skipping
+symbolicator uses an image, skipping
+web uses an image, skipping
+cron uses an image, skipping
+worker uses an image, skipping
+ingest-consumer uses an image, skipping
+post-process-forwarder uses an image, skipping
+subscription-consumer-events uses an image, skipping
+subscription-consumer-transactions uses an image, skipping
+relay uses an image, skipping
+nginx uses an image, skipping
+Building snuba-cleanup
+Sending build context to Docker daemon  3.584kB
+Step 1/5 : ARG BASE_IMAGE
+Step 2/5 : FROM ${BASE_IMAGE}
+ ---> 75c8d61bafcc
+Step 3/5 : RUN apt-get update && apt-get install -y --no-install-recommends cron &&     rm -r /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 3e3ed8321eca
+Step 4/5 : COPY entrypoint.sh /entrypoint.sh
+ ---> Using cache
+ ---> 847b610bb57e
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Using cache
+ ---> c441a72c7c25
+Successfully built c441a72c7c25
+Successfully tagged snuba-cleanup-self-hosted-local:latest
+Building snuba-transactions-cleanup
+Sending build context to Docker daemon  3.584kB
+Step 1/5 : ARG BASE_IMAGE
+Step 2/5 : FROM ${BASE_IMAGE}
+ ---> 75c8d61bafcc
+Step 3/5 : RUN apt-get update && apt-get install -y --no-install-recommends cron &&     rm -r /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 3e3ed8321eca
+Step 4/5 : COPY entrypoint.sh /entrypoint.sh
+ ---> Using cache
+ ---> 847b610bb57e
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Using cache
+ ---> c441a72c7c25
+Successfully built c441a72c7c25
+Successfully tagged snuba-cleanup-self-hosted-local:latest
+Building symbolicator-cleanup
+Sending build context to Docker daemon  3.584kB
+Step 1/5 : ARG BASE_IMAGE
+Step 2/5 : FROM ${BASE_IMAGE}
+ ---> 786d661e58fb
+Step 3/5 : RUN apt-get update && apt-get install -y --no-install-recommends cron &&     rm -r /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 13aeb2e58eac
+Step 4/5 : COPY entrypoint.sh /entrypoint.sh
+ ---> Using cache
+ ---> 13e4117d4357
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Using cache
+ ---> e54e4365c9cb
+Successfully built e54e4365c9cb
+Successfully tagged symbolicator-cleanup-self-hosted-local:latest
+Building sentry-cleanup
+Sending build context to Docker daemon  3.584kB
+Step 1/5 : ARG BASE_IMAGE
+Step 2/5 : FROM ${BASE_IMAGE}
+ ---> f4e9b06b5499
+Step 3/5 : RUN apt-get update && apt-get install -y --no-install-recommends cron &&     rm -r /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 398203914889
+Step 4/5 : COPY entrypoint.sh /entrypoint.sh
+ ---> Using cache
+ ---> 621e23292fee
+Step 5/5 : ENTRYPOINT ["/entrypoint.sh"]
+ ---> Using cache
+ ---> 3947ab892cbb
+Successfully built 3947ab892cbb
+Successfully tagged sentry-cleanup-self-hosted-local:latest
+
+Docker images built.
+
+▶ Turning things off ...
+Removing network sentry-self-hosted_default
+Network sentry-self-hosted_default not found.
+
+▶ Setting up Zookeeper ...
+Creating network "sentry-self-hosted_default" with the default driver
+Creating sentry-self-hosted_zookeeper_run ... 
+Creating sentry-self-hosted_zookeeper_run ... done
+Creating sentry-self-hosted_zookeeper_run ... 
+Creating sentry-self-hosted_zookeeper_run ... done
+Creating sentry-self-hosted_zookeeper_run ... 
+Creating sentry-self-hosted_zookeeper_run ... done
+
+▶ Downloading and installing wal2json ...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  5417  100  5417    0     0  13314      0 --:--:-- --:--:-- --:--:-- 13309
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   669  100   669    0     0   2188      0 --:--:-- --:--:-- --:--:--  2186
+100  101k  100  101k    0     0   132k      0 --:--:-- --:--:-- --:--:--  132k
+
+▶ Bootstrapping and migrating Snuba ...
+Creating sentry-self-hosted_clickhouse_1 ... 
+Creating sentry-self-hosted_redis_1      ... 
+Creating sentry-self-hosted_zookeeper_1  ... 
+Creating sentry-self-hosted_zookeeper_1  ... done
+Creating sentry-self-hosted_redis_1      ... done
+Creating sentry-self-hosted_clickhouse_1 ... done
+Creating sentry-self-hosted_kafka_1      ... 
+Creating sentry-self-hosted_kafka_1      ... done
+Creating sentry-self-hosted_snuba-api_run ... 
+Creating sentry-self-hosted_snuba-api_run ... done
+2022-01-05 13:49:54,262 Attempting to connect to Kafka (attempt 0)...
+2022-01-05 13:49:54,326 Connected to Kafka on attempt 0
+2022-01-05 13:49:54,327 Creating Kafka topics...
+Creating sentry-self-hosted_snuba-api_run ... 
+Creating sentry-self-hosted_snuba-api_run ... done
+Finished running migrations
+
+▶ Creating additional Kafka topics ...
+
+▶ Ensuring proper PostgreSQL version ...
+
+▶ Setting up / migrating database ...
+Creating sentry-self-hosted_smtp_1 ... 
+Creating sentry-self-hosted_postgres_1 ... 
+Creating sentry-self-hosted_memcached_1 ... 
+Creating sentry-self-hosted_symbolicator_1 ... 
+Creating sentry-self-hosted_snuba-subscription-consumer-transactions_1 ... 
+Creating sentry-self-hosted_snuba-subscription-consumer-events_1       ... 
+Creating sentry-self-hosted_snuba-replacer_1                           ... 
+Creating sentry-self-hosted_snuba-transactions-consumer_1              ... 
+Creating sentry-self-hosted_snuba-sessions-consumer_1                  ... 
+Creating sentry-self-hosted_snuba-api_1                                ... 
+Creating sentry-self-hosted_snuba-outcomes-consumer_1                  ... 
+Creating sentry-self-hosted_snuba-consumer_1                           ... 
+Creating sentry-self-hosted_symbolicator_1                             ... done
+Creating sentry-self-hosted_memcached_1                                ... done
+Creating sentry-self-hosted_snuba-subscription-consumer-events_1       ... done
+Creating sentry-self-hosted_postgres_1                                 ... done
+Creating sentry-self-hosted_snuba-subscription-consumer-transactions_1 ... done
+Creating sentry-self-hosted_snuba-transactions-consumer_1              ... done
+Creating sentry-self-hosted_snuba-sessions-consumer_1                  ... done
+Creating sentry-self-hosted_snuba-replacer_1                           ... done
+Creating sentry-self-hosted_smtp_1                                     ... done
+Creating sentry-self-hosted_snuba-api_1                                ... done
+Creating sentry-self-hosted_snuba-consumer_1                           ... done
+Creating sentry-self-hosted_snuba-outcomes-consumer_1                  ... done
+Creating sentry-self-hosted_web_run                                    ... 
+Creating sentry-self-hosted_web_run                                    ... done
+Updating certificates in /etc/ssl/certs...
+0 added, 0 removed; done.
+Running hooks in /etc/ca-certificates/update.d...
+done.
+13:50:44 [WARNING] sentry.utils.geo: Error opening GeoIP database: /geoip/GeoLite2-City.mmdb
+13:50:44 [WARNING] sentry.utils.geo: Error opening GeoIP database in Rust: /geoip/GeoLite2-City.mmdb
+/usr/local/lib/python3.8/site-packages/sentry/utils/strings.py:44: DeprecationWarning: invalid escape sequence '\['
+  return value.encode("ascii", "backslashreplace").decode(
+/usr/local/lib/python3.8/site-packages/memcache.py:1303: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  if key is '':
+/usr/local/lib/python3.8/site-packages/memcache.py:1304: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  if key_extra_len is 0:
+13:50:51 [INFO] sentry.plugins.github: apps-not-configured
+Running migrations for default
+[36;1mOperations to perform:[0m
+[1m  Apply all migrations: [0madmin, auth, contenttypes, nodestore, sentry, sessions, sites, social_auth
+[36;1mRunning migrations:[0m
+  No migrations to apply.
+Creating missing DSNs
+Correcting Group.num_comments counter
+
+▶ Migrating file storage ...
+
+▶ Generating Relay credentials ...
+Creating ../relay/config.yml...
+Creating sentry-self-hosted_relay_run ... 
+Creating sentry-self-hosted_relay_run ... done
+Relay credentials written to ../relay/credentials.json
+
+▶ Setting up GeoIP integration ...
+Setting up IP address geolocation ...
+Installing (empty) IP address geolocation database ... done.
+IP address geolocation is not configured for updates.
+See https://develop.sentry.dev/self-hosted/geolocation/ for instructions.
+Error setting up IP address geolocation.
+
+
+-----------------------------------------------------------------
+
+You're all done! Run the following command to get Sentry running:
+
+  docker-compose up -d
+
+-----------------------------------------------------------------
+

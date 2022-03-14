@@ -1,0 +1,140 @@
+version: '3.9'
+
+volumes:
+  redis_data:
+  postgres_data:
+  elasticsearch_data:
+  redis_auth_data:
+  postgres_auth_data:
+  kafka_ugc:
+
+services:
+  movies_admin:
+    build:
+      context: ./services/movies_admin/
+    container_name: movies_admin
+    restart: on-failure
+    depends_on:
+      - postgres
+
+  movies_film_etl:
+    build:
+      context: ./services/movies_etl/
+    container_name: movies_film_etl
+    restart: on-failure
+    environment:
+      - ETL_MODE=film_work
+    depends_on:
+      - postgres
+      - elasticsearch_etl
+
+  movies_person_etl:
+    build:
+      context: ./services/movies_etl/
+    container_name: movies_person_etl
+    restart: on-failure
+    environment:
+      - ETL_MODE=person
+    depends_on:
+      - postgres
+      - elasticsearch_etl
+
+  movies_genre_etl:
+    build:
+      context: ./services/movies_etl/
+    container_name: movies_genre_etl
+    restart: on-failure
+    environment:
+      - ETL_MODE=genre
+    depends_on:
+      - postgres
+      - elasticsearch_etl
+
+  movies_async_api:
+    build:
+      context: ./services/movies_async_api/
+    container_name: movies_async_api
+    restart: on-failure
+    depends_on:
+      - redis
+      - postgres
+      - elasticsearch_etl
+
+  movies_auth:
+    build:
+      context: ./services/movies_auth/
+    container_name: movies_auth
+    restart: on-failure
+    depends_on:
+      - redis_auth
+      - postgres_auth
+
+  elasticsearch_etl:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
+    container_name: elasticsearch_etl
+    restart: always
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    environment:
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - discovery.type=single-node
+      - logger.level=WARN
+
+  postgres:
+    image: postgres:13.0-alpine
+    container_name: postgres
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./services/movies_admin/entrypoint.initdb.sh:/docker-entrypoint-initdb.d/entrypoint-initdb.sh
+
+  redis:
+    image: redis:6.2.6-alpine
+    container_name: redis
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  postgres_auth:
+    image: postgres:13.0-alpine
+    container_name: postgres_auth
+    restart: always
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data/
+      - ./services/movies_auth/entrypoint.initdb.sh:/docker-entrypoint-initdb.d/entrypoint-initdb.sh
+
+  redis_auth:
+    image: redis:6.2.6-alpine
+    container_name: redis_auth
+    restart: always
+    volumes:
+      - redis_auth_data:/data
+
+  movies_ugc:
+    build:
+      context: .
+    container_name: movies_ugc
+    restart: on-failure
+    depends_on:
+      - kafka_ugc
+      - zookeeper_ugc
+
+  zookeeper_ugc:
+    image: wurstmeister/zookeeper:3.4.6
+    container_name: zookeeper_ugc
+
+  kafka_ugc:
+    image: wurstmeister/kafka:2.13-2.8.1
+    container_name: kafka_ugc
+    volumes:
+      - kafka_ugc:/var/run/docker.sock
+
+  ugc_etl:
+    build:
+      dockerfile: Dockerfile
+      context: ./services/kafka_to_clickhouse/
+    container_name: etl_ugc
+    env_file:
+      - ./.env.dev
+    volumes:
+      - ./services/kafka_to_clickhouse:/app

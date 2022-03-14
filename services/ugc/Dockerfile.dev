@@ -1,0 +1,28 @@
+FROM python:3.9.6
+
+ENV APP_PATH=services/ugc
+ENV PACKAGES_PATH=packages
+ENV DST_ROOT=/usr/src/app
+ENV DST_APP_HOME=$DST_ROOT/$APP_PATH
+WORKDIR $DST_APP_HOME
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && apt-get install -y netcat
+
+RUN pip install --upgrade pip
+COPY ./$PACKAGES_PATH/auth_utils $DST_ROOT/$PACKAGES_PATH/auth_utils/
+COPY ./$APP_PATH/requirements/ .
+RUN pip install -r dev.txt
+
+COPY ./$APP_PATH/entrypoint.sh .
+RUN sed -i 's/\r$//g' $DST_APP_HOME/entrypoint.sh
+RUN chmod +x $DST_APP_HOME/entrypoint.sh
+
+COPY ./$APP_PATH/src .
+
+EXPOSE 8001
+
+ENTRYPOINT ["/usr/src/app/services/ugc/entrypoint.sh"]
+CMD ["python", "main.py"]
