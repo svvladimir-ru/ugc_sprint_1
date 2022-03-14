@@ -2,6 +2,13 @@
 [![CI](https://github.com/SamMeown/ugc_sprint_1/actions/workflows/ci.yml/badge.svg?event=push&branch=main)](https://github.com/SamMeown/ugc_sprint_1/actions?query=event%3Apush+branch%3Amain+workflow%3ACI)
 [![versions](https://img.shields.io/badge/python-3.9%20%7C%203.10-blue)](https://github.com/SamMeown/ugc_sprint_1)  
 
+[Владимир Светлаков](https://github.com/svvladimir-ru)
+
+[Артём Гончаров](https://github.com/Artsektor)
+
+[Семён Крутман](https://github.com/SamMeown)
+
+
 - CI срабатывает на *push* и *pull request* в `main` или в `development` ветки 
 - Осуществляются статические проверки кода с помощью `flake8` и `mypy`
 - Код проверяется для версий Python `3.9` и `3.10`
